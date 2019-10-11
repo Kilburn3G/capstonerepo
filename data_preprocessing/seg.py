@@ -16,7 +16,7 @@ def loadDataset(filepath):
 
 def main():
     cwd = os.getcwd()
-    filename = '100.csv'
+    filename = r'datain\100.csv'
     
     def init():
         pass
