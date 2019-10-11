@@ -11,12 +11,12 @@ import os
 
 def loadDataset(filepath):
     ##Loads dataset from CSV
-    dfData = pd.read_csv('data.csv')
+    dfData = pd.read_csv(filepath)
 
 
 def main():
     cwd = os.getcwd()
-    filename = r'datain\100.csv'
+    filename = r'datain\samples.csv'
     
     def init():
         pass
