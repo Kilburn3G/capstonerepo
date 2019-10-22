@@ -21,7 +21,7 @@ def main():
     def init():
         pass
 
-    init()
+    innit()
     
     loadDataset(cwd + filename)
 
