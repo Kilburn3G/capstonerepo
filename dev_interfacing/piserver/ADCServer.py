@@ -6,6 +6,8 @@ list_samples= []
 outfile = 'samples.csv'
 
 def startServer():
+    global client_socket, server_socket
+
     server_socket=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
 
     server_socket.bind(("",PORT))
@@ -31,7 +33,7 @@ def writeCSV():
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
         wr.writerow(list_samples)
 
-    print('Written %s' %soutfile)
+    print('Written %s' %outfile)
 
  
 def closeServerSockets():

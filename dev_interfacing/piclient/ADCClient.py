@@ -13,8 +13,9 @@ PORT = 3
 
 #ADC Parameters
 GAIN = 1
-DATA_RATE = 250 #samples per second
+DATA_RATE = 860 #samples per second
 MAX_SAMPLETIME = 5 # Max sample time in seconds
+STOP_SIG = "0"
 
 
 outfilecsv = 'samples.csv'
@@ -22,6 +23,8 @@ list_samples = []
 adc = Adafruit_ADS1x15.ADS1115()
 
 def startClient():
+    global sock
+
     print("Client started. Attempting to connect to server.")
 
     sock=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
@@ -31,7 +34,7 @@ def startClient():
 
 def startSampling():
     print('Sampling for %s seconds.' %MAX_SAMPLETIME)
-
+    start = time.time()
     adc.start_adc(0, gain=GAIN,data_rate=DATA_RATE)
 
     while (time.time() - start) <= MAX_SAMPLETIME:
@@ -42,6 +45,7 @@ def startSampling():
         list_samples.append(value)
 
     adc.stop_adc()
+    sock.send(STOP_SIG)
 
 def closeServer():
     print('Closing socket')
@@ -70,6 +74,7 @@ def main():
     startClient()
     startSampling()
     writeToCSV()
+    time.sleep(5)
     closeServer()
 
 main()
