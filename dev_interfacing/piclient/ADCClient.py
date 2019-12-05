@@ -13,8 +13,8 @@ PORT = 3
 
 #ADC Parameters
 GAIN = 1
-DATA_RATE = 860 #samples per second
-MAX_SAMPLETIME = 5 # Max sample time in seconds
+DATA_RATE = 250 #samples per second
+MAX_SAMPLETIME = 30 # Max sample time in seconds
 STOP_SIG = "0"
 
 
@@ -36,13 +36,25 @@ def startSampling():
     print('Sampling for %s seconds.' %MAX_SAMPLETIME)
     start = time.time()
     adc.start_adc(0, gain=GAIN,data_rate=DATA_RATE)
+    last = 0
+    sendDelta = 0.1 # Only send when difference of x Volts
 
     while (time.time() - start) <= MAX_SAMPLETIME:
-
+        
         value = adc.get_last_result()
-        print("Sending message %s" %value)
-        sock.send( "%s" %value )
-        list_samples.append(value)
+        value = value*0.000125
+        #print(value)
+        diff = abs(value - last)
+        # if diff >= sendDelta:
+        #     #print('Delta %d' %diff)
+    
+        last = value
+        tosend = '{0:.2f}'.format(value) 
+        print("Sending message %s" %tosend)
+        sock.send( "%s" %tosend )
+        list_samples.append(tosend)
+    
+        
 
     adc.stop_adc()
     sock.send(STOP_SIG)
@@ -73,7 +85,7 @@ def main():
 
     startClient()
     startSampling()
-    writeToCSV()
+    #writeToCSV()
     time.sleep(5)
     closeServer()
 

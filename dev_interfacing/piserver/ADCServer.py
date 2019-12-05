@@ -3,6 +3,7 @@ import csv
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
+import re
 
 PORT = 3
 list_samples= []
@@ -14,11 +15,16 @@ plt.title('EKG Sampler')
 plt.xlabel('Samples')
 plt.ylabel('Relative Voltage')
 
-
+def parseDataList(data_str):
+    pattern = r'(\d\.\d\d)'
+    rslt = re.findall(pattern, data_str)
+    float_data = list(float(v) for v in rslt)
+    return float_data
 
 def startServer():
     global client_socket, server_socket
 
+    
     server_socket=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
 
     server_socket.bind(("",PORT))
@@ -26,16 +32,17 @@ def startServer():
 
     print("Waiting for connections")
     client_socket,address = server_socket.accept()
+
     print "Accepted connection from ",address
 
 def readByte():
     STOP_SIG = "0"
-    
+
     data = client_socket.recv(1024)
     print ("Received: %s" % data)
- 
     return data
 
+    
 def readContinuousData():
     STOP_SIG = "0"
     data= ""
@@ -66,7 +73,7 @@ def closeServerSockets():
 ############################################
     
 # Parameters
-x_len = 200         # Number of points to display
+x_len = 1500         # Number of points to display
 y_range = [0, 5]  # Range of possible Y values to display
 
 # Create figure for plotting
@@ -82,7 +89,10 @@ line, = ax.plot(xs, ys)
 def animate(i, ys):
     
     # Add y to list
-    ys.append(readByte())
+    
+    data = readByte()
+
+    ys += parseDataList(data)
 
     # Limit y list to set number of items
     ys = ys[-x_len:]
@@ -100,7 +110,7 @@ def main():
     ani = animation.FuncAnimation(fig,
         animate,
         fargs=(ys,),
-        interval=50,
+        interval=10,
         blit=True)
     plt.show()
 
