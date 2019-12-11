@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 import numpy as np
 import re
+import pdb
+
 
 PORT = 3
 list_samples= []
@@ -14,6 +16,11 @@ outfile = 'samples.csv'
 plt.title('EKG Sampler')
 plt.xlabel('Samples')
 plt.ylabel('Relative Voltage')
+
+def resetStartPos():
+    global start_pos
+    start_pos = 0;
+
 
 def parseDataList(data_str):
     pattern = r'(\d\.\d\d)'
@@ -73,7 +80,7 @@ def closeServerSockets():
 ############################################
     
 # Parameters
-x_len = 1500         # Number of points to display
+x_len = 500         # Number of points to display
 y_range = [0, 5]  # Range of possible Y values to display
 
 # Create figure for plotting
@@ -88,6 +95,8 @@ line, = ax.plot(xs, ys)
 
 def animate(i, ys):
     
+    global start_pos
+
     # Add y to list
     
     data = readByte()
@@ -104,17 +113,20 @@ def animate(i, ys):
 
 
 def main():
+    resetStartPos()
     startServer()
+    
+
 
     # Set up plot to call animate() function periodically
     ani = animation.FuncAnimation(fig,
         animate,
         fargs=(ys,),
-        interval=10,
+        interval=50,
         blit=True)
     plt.show()
 
-    closeServerSockets()
+    #closeServerSockets()
 
 
 
