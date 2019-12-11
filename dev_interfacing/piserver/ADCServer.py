@@ -93,18 +93,41 @@ ax.set_ylim(y_range)
 # Create a blank line. We will update the line in animate
 line, = ax.plot(xs, ys)
 
+def updateList(ys,data):
+    global start_pos, next_start
+    
+    ys_len = len(ys)
+    data_len = len(data)
+
+    # print('START: %s ' %start_pos)
+    # print('ys: %s ' %ys)
+
+   
+    next_start = start_pos+data_len
+
+
+
+    if next_start >= ys_len:
+        start_pos=0
+    else:
+        for i in range(data_len):
+            ys[start_pos+i] = data[i]
+        start_pos=next_start
+
+    return ys
 def animate(i, ys):
     
-    global start_pos
+    
 
     # Add y to list
     
     data = readByte()
 
-    ys += parseDataList(data)
-
-    # Limit y list to set number of items
-    ys = ys[-x_len:]
+    ys = updateList(ys,parseDataList(data))
+  
+    print(ys)
+    # # Limit y list to set number of items
+    # ys = ys[-x_len:]
 
     # Update line with new Y values
     line.set_ydata(ys)
@@ -113,9 +136,12 @@ def animate(i, ys):
 
 
 def main():
+    
+    global start_pos
     resetStartPos()
     startServer()
-    
+    start_pos = 0
+    next_start = 0
 
 
     # Set up plot to call animate() function periodically
