@@ -98,10 +98,6 @@ def updateList(ys,data):
     
     ys_len = len(ys)
     data_len = len(data)
-
-    # print('START: %s ' %start_pos)
-    # print('ys: %s ' %ys)
-
    
     next_start = start_pos+data_len
 
