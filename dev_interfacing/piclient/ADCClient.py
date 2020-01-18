@@ -49,7 +49,7 @@ def startSampling():
         #     #print('Delta %d' %diff)
     
         last = value
-        tosend = '{0:.2f}'.format(value) 
+        tosend = '{0:.5f}'.format(value) 
         print("Sending message %s" %tosend)
         sock.send( "%s" %tosend )
         list_samples.append(tosend)

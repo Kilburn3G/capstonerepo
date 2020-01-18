@@ -92,10 +92,11 @@ def resetStartPos():
 
 
 def parseDataList(data_str):
-    pattern = r'(\d\.\d\d)'
+    pattern = r'(\d\.\d\d\d\d\d)'
     rslt = re.findall(pattern, data_str)
     float_data = list(float(v) for v in rslt)
     return float_data
+
 
 def startServer():
     global client_socket, server_socket
@@ -150,7 +151,7 @@ def closeServerSockets():
     
 # Parameters
 x_len = 500         # Number of points to display
-y_range = [0, 5]  # Range of possible Y values to display
+y_range = [0, 0.3]  # Range of possible Y values to display
 
 # Create figure for plotting
 fig = plt.figure()
@@ -180,6 +181,7 @@ def updateList(ys,data):
         start_pos=next_start
 
     return ys
+    
 def animate(i, ys):
     
     
@@ -199,7 +201,12 @@ def animate(i, ys):
 
     return line,
 
+# def gatherSamples(numSamples):
 
+#     while
+#     data = readByte()
+#     ys = updateList(ys,parseDataList(data))
+  
 def main():
     
     global start_pos
@@ -218,7 +225,6 @@ def main():
     plt.show()
 
     #closeServerSockets()
-
 
 
 
