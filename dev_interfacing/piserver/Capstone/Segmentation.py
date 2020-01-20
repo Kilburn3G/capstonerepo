@@ -1,7 +1,7 @@
-'''
+"""
 Authors: Aydan, Alex
-'''
 
+"""
 
 import numpy as np
 import pandas as pd
@@ -95,5 +95,5 @@ def plotSegments(V, peaks , fig, ax):
 
 E , A = processSamples(V)
 peaks = getPeaks(V,E,A)
-pdb.set_trace()
-plotSegments(V,peaks)
+initplots()
+plotSegments(V,peaks,fig,ax)
