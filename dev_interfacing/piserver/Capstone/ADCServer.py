@@ -1,7 +1,5 @@
 import bluetooth
 import csv
-import matplotlib.pyplot as plt
-import matplotlib.animation as animation
 import numpy as np
 import re
 import pdb
@@ -18,10 +16,6 @@ plt.title('EKG Sampler')
 plt.xlabel('Samples')
 plt.ylabel('Relative Voltage')
 
-
-def resetStartPos():
-    global start_pos
-    start_pos = 0;
 
 
 def parseDataList(data_str):
@@ -78,73 +72,6 @@ def closeServerSockets():
     server_socket.close()
 
 
-############################################
-########### PLOTTING #######################
-############################################
-    
-# Parameters
-x_len = 500         # Number of points to display
-y_range = [0, 0.3]  # Range of possible Y values to display
-
-# Create figure for plotting
-fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1)
-xs = list(range(0, x_len))
-ys = [0] * x_len
-ax.set_ylim(y_range)
-
-# Create a blank line. We will update the line in animate
-line, = ax.plot(xs, ys)
-
-def updateList(ys,data):
-    global start_pos, next_start
-    
-    ys_len = len(ys)
-    data_len = len(data)
-   
-    next_start = start_pos+data_len
-
-
-
-    if next_start >= ys_len:
-        start_pos=0
-    else:
-        for i in range(data_len):
-            ys[start_pos+i] = data[i]
-        start_pos=next_start
-
-    return ys
-    
-def animate(i, ys):
-    
-    
-    # Add y to list
-    
-    data = readByte()
-
-    ys = updateList(ys,parseDataList(data))
-  
-    print(ys)
-    # # Limit y list to set number of items
-    # ys = ys[-x_len:]
-
-    # Update line with new Y values
-    line.set_ydata(ys)
-
-    return line,
-
-
-# Gather at least numSamples number of samples, return as a list
-def gatherSamples(numSamples):
-
-    samples = []
-    while len(samples) < numSamples:
-        data = readByte()
-        samples += parseDataList(data)
-    
-    
-    return samples
-  
 def main():
     
     global start_pos

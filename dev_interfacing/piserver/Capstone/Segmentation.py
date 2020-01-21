@@ -8,18 +8,26 @@ import pandas as pd
 import pdb
 import matplotlib
 import matplotlib.pyplot as plt
-
+import csv
 
 #!# Not implemented unless script is run as a stand alone script.
-data = pd.read_csv('samples_102.csv',index_col=None)
-data = data.apply(pd.to_numeric,errors='coerce')
-V = data.iloc[1:1000,1]
-V.index = np.arange(1,len(V)+1)
+
+with open('samples_josh1.csv', 'rb') as f:
+    reader = csv.reader(f)
     
+    data = pd.Series(f.readlines())
+
+data = data.apply(pd.to_numeric,errors='coerce')
+V = data.iloc[1:len(data)]
+V.index = np.arange(1,len(V)+1)
+
+
+
 #Constants (need import)
 WINDOW_SIZE=21;
 E_THRESH = 0.01;
 A_THRESH = -0.002;
+DIVIDER = 0.000125
 
 def initplots():
     global fig, ax
@@ -94,6 +102,7 @@ def plotSegments(V, peaks , fig, ax):
 
 
 E , A = processSamples(V)
+pdb.set_trace()
 peaks = getPeaks(V,E,A)
 initplots()
 plotSegments(V,peaks,fig,ax)
