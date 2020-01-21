@@ -9,10 +9,12 @@ import pdb
 import matplotlib
 import matplotlib.pyplot as plt
 import csv
+from scipy.signal import butter, lfilter
+
 
 #!# Not implemented unless script is run as a stand alone script.
 
-with open('samples_josh1.csv', 'rb') as f:
+with open('samples_josh3.csv', 'rb') as f:
     reader = csv.reader(f)
     
     data = pd.Series(f.readlines())
@@ -22,16 +24,36 @@ V = data.iloc[1:len(data)]
 V.index = np.arange(1,len(V)+1)
 
 
-
 #Constants (need import)
-WINDOW_SIZE=21;
-E_THRESH = 0.01;
-A_THRESH = -0.002;
-DIVIDER = 0.000125
+WINDOW_SIZE=51;
 
+DIVIDER = 0.000125
+SAMPLING_FREQ = 475
+
+#Used to decide if E is low enough
+E_THRESH = 0.0007;
+
+#Used to decide if A is high enough
+A_THRESH = -0.00005
+
+
+
+
+def preprocessData(V):
+    
+    V = V*DIVIDER
+    
+    #Pass through filter
+    b, a = butter(16,.1)
+    y = lfilter(b, a, V)
+    
+    return y
+    
 def initplots():
     global fig, ax
     fig, ax = plt.subplots()
+
+
 
 def getPeaks(V,E,A):
     '''Return peaks using the error curve E, and opening coefficents A'''
@@ -43,7 +65,7 @@ def getPeaks(V,E,A):
         C1 = E[center-1]
         C2 = E[center-2]
         
-        if C2 > C1 and C1 < C and A[center] < A_THRESH:
+        if C2 > C1 and C1 < C and A[center] < A_THRESH and C < E_THRESH:
 
             peaks += [center]
 
@@ -54,7 +76,7 @@ def processSamples(V):
     E = np.array([0.0]*(len(V)));
     A = np.array([0.0]*(len(V)));
 
-    window_center = (WINDOW_SIZE-1)/2
+    window_center = int((WINDOW_SIZE-1)/2)
 
     x = np.linspace(window_center-WINDOW_SIZE+1,window_center,WINDOW_SIZE)
     x = np.power(x,2)
@@ -62,7 +84,7 @@ def processSamples(V):
     for window_start in range(1,len(V)-WINDOW_SIZE):  
             
         window_end = window_start+WINDOW_SIZE-1
-        window_center = window_start + (WINDOW_SIZE-1) /2
+        window_center = int(window_start + (WINDOW_SIZE-1) /2)
 
         V_window = V.loc[window_start:window_end]; # adjusting the window for the next iteration
 
@@ -88,21 +110,34 @@ def plotSegments(V, peaks , fig, ax):
     '''
     Plots segments overtop of eachother
     '''
+    
     if len(peaks) > 0:
         avg_samples = np.sum(np.diff(peaks))/len(np.diff(peaks))
         print('Average Samples between peaks : %d' %avg_samples)
 
-        plt.hold(True)
-        for i in range(1,len(V),avg_samples):    
-            ax.plot(V.loc[i:i+avg_samples])
+     
+        for i in range(0,len(peaks)): 
+            pdb.set_trace()
+            if peaks[i] - avg_samples > 0 and peaks[i]+avg_samples < len(V):
+                ax.plot(V.loc[peaks[i]-avg_samples/2:peaks[i]+avg_samples/2])
         plt.show()
-        plt.hold(False)
+        
     else:
         print('Could not plot, no peaks found')
 
 
+
+
+
+
+V = pd.Series(preprocessData(V))
+
 E , A = processSamples(V)
-pdb.set_trace()
+
 peaks = getPeaks(V,E,A)
 initplots()
 plotSegments(V,peaks,fig,ax)
+
+pdb.set_trace()
+
+plt.show()
