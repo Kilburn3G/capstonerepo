@@ -12,7 +12,7 @@ import csv
 from scipy.signal import butter, lfilter
 
 
-IN_FILE = r'samples\samples_josh3.csv'
+IN_FILE = r'test_samples/samples_josh3.csv'
 #!# Not implemented unless script is run as a stand alone script.
 
 #Constants (need import)
@@ -43,7 +43,7 @@ def loadSamples():
 
 
 def castToDataFrame(data):
-    return = pd.Series(data)
+    return pd.Series(data)
 
 def preprocessData(V, divider = None):
     """
@@ -151,7 +151,7 @@ def plotSegments(V, peaks , fig, ax):
 
      
         for i in range(0,len(peaks)): 
-            pdb.set_trace()
+           
             if peaks[i] - avg_samples > 0 and peaks[i]+avg_samples < len(V):
                 ax.plot(V.loc[peaks[i]-avg_samples/2:peaks[i]+avg_samples/2])
         plt.show()
@@ -163,9 +163,10 @@ def plotSegments(V, peaks , fig, ax):
 
 
 
-
-V = pd.Series(preprocessData(V))
+V=loadSamples()
+V = pd.Series(preprocessData(V,divider=DIVIDER))
 E , A = processSamples(V)
+
 peaks = getPeaks(V,E,A)
 
 initplots()

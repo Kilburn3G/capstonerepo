@@ -112,7 +112,7 @@ def gatherSamples(numSamples):
 def main():
     
     startServer()
-    samples = gatherSamples(2000)
+    samples = gatherSamples(1000)
     writeCSV(samples)
 
     #Get V, E, and A
