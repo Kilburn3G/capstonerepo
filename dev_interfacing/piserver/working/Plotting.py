@@ -6,6 +6,15 @@ import matplotlib.animation as animation
 ############################################
 
 
+def initplots():
+    '''
+    Used to get fig, ax plots
+    
+    Return : fig, ax
+    '''
+    return plt.subplots()
+
+
 def resetStartPos():
     global start_pos
     start_pos = 0;
@@ -60,4 +69,29 @@ def animate(i, ys):
     line.set_ydata(ys)
 
     return line,
+
+
+
+def plotSegments(V, peaks , fig, ax):
+    '''
+    Plots segments overtop of eachother. Needs initialized fig and ax
+    V : Dataframe of our signal
+    peaks : list of locations for peaks
+    '''
+    
+    if len(peaks) > 0:
+        avg_samples = np.sum(np.diff(peaks))/len(np.diff(peaks))
+        print('Average Samples between peaks : %d' %avg_samples)
+
+     
+        for i in range(0,len(peaks)): 
+            pdb.set_trace()
+            if peaks[i] - avg_samples > 0 and peaks[i]+avg_samples < len(V):
+                ax.plot(V.loc[peaks[i]-avg_samples/2:peaks[i]+avg_samples/2])
+        plt.show()
+        
+    else:
+        print('Could not plot, no peaks found')
+
+
 
