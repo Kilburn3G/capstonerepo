@@ -10,7 +10,8 @@ import matplotlib
 import matplotlib.pyplot as plt
 import csv
 from scipy.signal import butter, lfilter
-
+#from Multithreading import divideAndProcess
+import multiprocessing
 
 IN_FILE = r'test_samples/samples_josh3.csv'
 #!# Not implemented unless script is run as a stand alone script.
@@ -28,6 +29,10 @@ E_THRESH = 0.0007;
 A_THRESH = -0.00005
 
 
+
+
+
+
 def loadSamples():
     """
     Using file io, open IN_FILE and return as a dataframe
@@ -38,7 +43,9 @@ def loadSamples():
 
     data = data.apply(pd.to_numeric,errors='coerce')
     V = data.iloc[1:len(data)]
+   
     V.index = np.arange(1,len(V)+1)
+    print('Samples loaded')
     return V
 
 
@@ -107,7 +114,7 @@ def processSamples(V, wind_sz= WINDOW_SIZE):
     A = np.array([0.0]*(len(V)));
 
     window_center = int((wind_sz-1)/2)
-
+    pdb.set_trace()
     x = np.linspace(window_center-wind_sz+1,window_center,wind_sz)
     x = np.power(x,2)
 
@@ -135,6 +142,43 @@ def processSamples(V, wind_sz= WINDOW_SIZE):
         A[window_center] = float(a);    
 
     return E, A
+
+
+def divideAndProcess(V,numThreads):
+    
+    global sharedSampels1,sharedSampels2
+    print('Dividing Samples')
+
+    samples = int(len(V)/numThreads)-1
+    indicies = range(1,len(V),samples)
+
+    sharedSampels1 = V.loc[indicies[0]:indicies[1]]
+    sharedSampels2 = V.loc[indicies[1]:indicies[2]]
+
+    p1 = multiprocessing.Process(target=processSamplesThread1)
+    p2 = multiprocessing.Process(target=processSamplesThread2)
+    
+    #p1.start()
+    p2.start()  
+
+    #p1.join()
+    p2.join()
+
+
+def processSamplesThread1():
+    print("Starting Thread 1")
+    E,A = processSamples(sharedSampels1)
+    print('Thread1 : Processed %d samples' %len(sharedSample1))
+    return
+
+
+def processSamplesThread2():
+    print("Starting Thread 2")
+    E,A = processSamples(sharedSampels2)
+    print('Thread2 : Processed %d samples' %len(sharedSample2))
+    return
+    
+
 
 def plotSegments(V, peaks , fig, ax):
     """
@@ -164,6 +208,7 @@ def plotSegments(V, peaks , fig, ax):
 
 
 V=loadSamples()
+divideAndProcess(V,2)
 V = pd.Series(preprocessData(V,divider=DIVIDER))
 E , A = processSamples(V)
 
