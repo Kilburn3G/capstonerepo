@@ -130,25 +130,6 @@ def processSamples(V, wind_sz= WINDOW_SIZE):
     return E, A
 
 
-def divideAndProcess(V,numThreads):
-    
-    global sharedSampels1,sharedSampels2
-    print('Dividing Samples')
-
-    samples = int(len(V)/numThreads)-1
-    indicies = range(1,len(V),samples)
-
-    sharedSampels1 = V.loc[indicies[0]:indicies[1]]
-    sharedSampels2 = V.loc[indicies[1]:indicies[2]]
-
-    p1 = multiprocessing.Process(target=processSamplesThread1)
-    p2 = multiprocessing.Process(target=processSamplesThread2)
-    
-    #p1.start()
-    p2.start()  
-
-    #p1.join()
-    p2.join()
 
 
 def processSamplesThread1():
