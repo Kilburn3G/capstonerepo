@@ -3,8 +3,8 @@ Authors: Aydan, Alex
 
 """
 
+import time
 import numpy as np
-import pandas as pd
 import pdb
 import matplotlib
 import matplotlib.pyplot as plt
@@ -29,28 +29,15 @@ E_THRESH = 0.0007;
 A_THRESH = -0.00005
 
 
-
-
-
-
 def loadSamples():
     """
-    Using file io, open IN_FILE and return as a dataframe
+    Using file io, open IN_FILE and return as a numpy array
     """
-    with open(IN_FILE, 'rb') as f:
-        reader = csv.reader(f)
-        data = pd.Series(f.readlines())
+    data = np.genfromtxt(IN_FILE, dtype=float, delimiter=',') 
 
-    data = data.apply(pd.to_numeric,errors='coerce')
-    V = data.iloc[1:len(data)]
-   
-    V.index = np.arange(1,len(V)+1)
-    print('Samples loaded')
-    return V
+    print('%d samples loaded' %len(data))
+    return data
 
-
-def castToDataFrame(data):
-    return pd.Series(data)
 
 def preprocessData(V, divider = None):
     """
@@ -103,18 +90,18 @@ def getPeaks(V,E,A, a_thr = A_THRESH, e_thr = E_THRESH):
 
 def processSamples(V, wind_sz= WINDOW_SIZE):
     """
-    Process the dataframe V using the linear regression method.
+    Process the np.array V using the linear regression method.
     
     wind_sz : Window size to use
 
     Return : E, A as np.arrays for the error and opening coefficents
     """
-
+    print('Processing %d samples' %len(V))
     E = np.array([0.0]*(len(V)));
     A = np.array([0.0]*(len(V)));
 
     window_center = int((wind_sz-1)/2)
-    pdb.set_trace()
+
     x = np.linspace(window_center-wind_sz+1,window_center,wind_sz)
     x = np.power(x,2)
 
@@ -122,8 +109,7 @@ def processSamples(V, wind_sz= WINDOW_SIZE):
             
         window_end = window_start+wind_sz-1
         window_center = int(window_start + (wind_sz-1) /2)
-
-        V_window = V.loc[window_start:window_end]; # adjusting the window for the next iteration
+        V_window = V[window_start:window_end+1]; # adjusting the window for the next iteration
 
         # calculation of a 
         a1 = wind_sz * np.sum(x*V_window) - np.sum(x) * np.sum(V_window);
@@ -184,7 +170,7 @@ def plotSegments(V, peaks , fig, ax):
     """
     Plots segments overtop of eachother. Needs initialized fig and ax
 
-    V : Dataframe of our signal
+    V : np.array of our signal
 
     peaks : list of locations for peaks
     """
@@ -195,9 +181,13 @@ def plotSegments(V, peaks , fig, ax):
 
      
         for i in range(0,len(peaks)): 
-           
-            if peaks[i] - avg_samples > 0 and peaks[i]+avg_samples < len(V):
-                ax.plot(V.loc[peaks[i]-avg_samples/2:peaks[i]+avg_samples/2])
+            if peaks[i] - avg_samples/2 > 0 and peaks[i]+avg_samples/2 < len(V):
+                ax.plot(V[peaks[i]-avg_samples/2:peaks[i]+avg_samples/2])
+            elif peaks[i] - avg_samples/2 < 0:
+                ax.plot(V[peaks[i]-avg_samples/2:peaks[i]+avg_samples/2])
+            elif peaks[i]+avg_samples > len(V):
+                pdb.set_trace()
+                ax.plot(V[peaks[i]-avg_samples/2:len(V)])
         plt.show()
         
     else:
@@ -208,10 +198,9 @@ def plotSegments(V, peaks , fig, ax):
 
 
 V=loadSamples()
-divideAndProcess(V,2)
-V = pd.Series(preprocessData(V,divider=DIVIDER))
-E , A = processSamples(V)
 
+V = preprocessData(V,divider=DIVIDER)
+E , A = processSamples(V)
 peaks = getPeaks(V,E,A)
 
 initplots()
