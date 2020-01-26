@@ -13,7 +13,7 @@ from scipy.signal import butter, lfilter
 #from Multithreading import divideAndProcess
 import multiprocessing
 
-IN_FILE = r'test_samples/samples_josh3.csv'
+IN_FILE = r'test_samples/samples_josh1.csv'
 #!# Not implemented unless script is run as a stand alone script.
 
 #Constants (need import)
@@ -97,8 +97,8 @@ def processSamples(V, wind_sz= WINDOW_SIZE):
     Return : E, A as np.arrays for the error and opening coefficents
     """
     print('Processing %d samples' %len(V))
-    E = np.array([0.0]*(len(V)));
-    A = np.array([0.0]*(len(V)));
+    E = np.empty((len(V)));
+    A = np.empty((len(V)));
 
     window_center = int((wind_sz-1)/2)
 
@@ -158,22 +158,24 @@ def plotSegments(V, peaks , fig, ax):
     
     if len(peaks) > 0:
         avg_samples = np.sum(np.diff(peaks))/len(np.diff(peaks))
+        avg_center = int(avg_samples/2)
         print('Average Samples between peaks : %d' %avg_samples)
 
-     
         for i in range(0,len(peaks)): 
-            if peaks[i] - avg_samples/2 > 0 and peaks[i]+avg_samples/2 < len(V):
-                ax.plot(V[peaks[i]-avg_samples/2:peaks[i]+avg_samples/2])
-            elif peaks[i] - avg_samples/2 < 0:
-                ax.plot(V[peaks[i]-avg_samples/2:peaks[i]+avg_samples/2])
+            if peaks[i] - avg_center > 0 and peaks[i]+avg_center < len(V):
+                
+                ax.plot(V[peaks[i]-avg_center:peaks[i]+avg_center])
+
+            elif peaks[i] - avg_center < 0:
+                
+                ax.plot(V[peaks[i]-avg_center:peaks[i]+avg_center])
             elif peaks[i]+avg_samples > len(V):
-                pdb.set_trace()
-                ax.plot(V[peaks[i]-avg_samples/2:len(V)])
+                
+                ax.plot(V[peaks[i]-int(avg_samples/2):len(V)])
         plt.show()
         
     else:
         print('Could not plot, no peaks found')
-
 
 
 
