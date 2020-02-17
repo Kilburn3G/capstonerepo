@@ -4,6 +4,7 @@ import sklearn.metrics as metrics
 from sklearn import svm
 from sklearn import datasets
 
+#sample data set. 30 dimensions ~550 samples
 cancer = datasets.load_breast_cancer()
 
 #print(cancer.feature_names)
