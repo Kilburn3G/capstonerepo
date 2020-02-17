@@ -13,7 +13,7 @@ from scipy.signal import butter, lfilter
 #from Multithreading import divideAndProcess
 import multiprocessing
 
-IN_FILE = r'test_samples/samples_josh1.csv'
+IN_FILE = r'test_samples/samples_jordan1.csv'
 #!# Not implemented unless script is run as a stand alone script.
 
 #Constants (need import)
@@ -34,7 +34,7 @@ def loadSamples():
     Using file io, open IN_FILE and return as a numpy array
     """
     data = np.genfromtxt(IN_FILE, dtype=float, delimiter=',') 
-
+    pdb.set_trace()
     print('%d samples loaded' %len(data))
     return data
 
@@ -180,12 +180,13 @@ def plotSegments(V, peaks , fig, ax):
 
 
 
-V=loadSamples()
+# V=loadSamples()
 
-V = preprocessData(V,divider=DIVIDER)
-E , A = processSamples(V)
-peaks = getPeaks(V,E,A)
+# V = preprocessData(V)
+# E , A = processSamples(V)
+# peaks = getPeaks(V,E,A)
 
-initplots()
-plotSegments(V,peaks,fig,ax)
-plt.show()
+# initplots()
+# plt.plot(V)
+# #plotSegments(V,peaks,fig,ax)
+# plt.show()
