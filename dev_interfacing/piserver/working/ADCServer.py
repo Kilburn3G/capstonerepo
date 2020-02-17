@@ -1,6 +1,4 @@
-import Segmentation
-
-from Segmentation import processSamples, getPeaks, castToDataFrame
+from Segmentation import processSamples, getPeaks, WINDOW_SIZE, DIVIDER, A_THRESH, E_THRESH
 from Plotting import animate, initplots, updateList, plotSegments
 from scipy.signal import butter, lfilter
 
@@ -11,6 +9,7 @@ import pandas as pd
 import numpy as np
 
 import bluetooth
+import time
 
 import re
 import pdb
@@ -19,7 +18,7 @@ import csv
 
 list_samples= [] #Not used in implementation unless continuous sampling
 PORT = 3 #Bluetooth port to operate on
-OUTFILE = r'out\samples_%d.csv' %int(time.time()) #Filename for recorded samples
+OUTFILE = r'out/samples_%d.csv' %int(time.time()) #Filename for recorded samples
 DEC_RES = 5 #How many decimal places should be accepted for parsing rec data. 
 
 
@@ -32,7 +31,7 @@ def parseDataList(data_str):
     Return: A list, parsed to DEC_RES decimal places. Only the First digit before the decimal point is read. 
     """
     pattern = r'(?=(\d\.\d{1,%d}))' %DEC_RES
-    rslt = re.findall(pattern, data_str)
+    rslt = re.findall(pattern, str(data_str))
     float_data = list(float(v) for v in rslt)
     return float_data
 
@@ -42,16 +41,17 @@ def startServer():
     Start server, and starting listing on the port specified by const PORT
     """
     global client_socket, server_socket
+    print("Waiting for connections")
 
     server_socket=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
 
     server_socket.bind(("",PORT))
     server_socket.listen(PORT)
 
-    print("Waiting for connections")
+    
     client_socket,address = server_socket.accept()
 
-    print "Accepted connection from ",address
+    print ("Accepted connection from " , address)
 
 def readBuffer():
     '''
@@ -80,9 +80,8 @@ def readContinuousData():
 
 def writeCSV(lst_samples):
     """Write samples to a CSV from list lst_samples. Output specified by OUTFILE"""
-
-    print("Writing CSV as %s "%OUTFILE)
-    with open(OUTFILE, 'wb') as myfile:
+    print("Writing CSV as %s " %OUTFILE)
+    with open(OUTFILE, 'w') as myfile:
         wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
         wr.writerow(lst_samples)
 
@@ -102,6 +101,7 @@ def gatherSamples(numSamples):
     Return: parsed list of samples in float form
     """
 
+    
     samples = []
     while len(samples) < numSamples:
         data = readBuffer()
@@ -112,14 +112,15 @@ def gatherSamples(numSamples):
 def main():
     
     startServer()
+    
     samples = gatherSamples(1000)
     writeCSV(samples)
 
     #Get V, E, and A
-    V = castToDataFrame(samples) # Required for further processing
-    E, A = processSamples(samples, Segmentation.WINDOW_SIZE)
+    V = np.array(samples,dtype=float) # Required for further processing
+    E, A = processSamples(samples, WINDOW_SIZE)
 
-    peaks = getPeaks(V,E,A,Segmentation.E_THRESH,Segmentation.A_THRESH)
+    peaks = getPeaks(V,E,A,E_THRESH,A_THRESH)
     fig, ax = initplots()
     plotSegments(V,peaks,fig,ax)
     closeServerSockets()

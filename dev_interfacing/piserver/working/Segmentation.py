@@ -34,7 +34,7 @@ def loadSamples():
     Using file io, open IN_FILE and return as a numpy array
     """
     data = np.genfromtxt(IN_FILE, dtype=float, delimiter=',') 
-
+    pdb.set_trace()
     print('%d samples loaded' %len(data))
     return data
 
@@ -97,8 +97,8 @@ def processSamples(V, wind_sz= WINDOW_SIZE):
     Return : E, A as np.arrays for the error and opening coefficents
     """
     print('Processing %d samples' %len(V))
-    E = np.array([0.0]*(len(V)));
-    A = np.array([0.0]*(len(V)));
+    E = np.empty((len(V)));
+    A = np.empty((len(V)));
 
     window_center = int((wind_sz-1)/2)
 
@@ -158,6 +158,7 @@ def plotSegments(V, peaks , fig, ax):
     
     if len(peaks) > 0:
         avg_samples = np.sum(np.diff(peaks))/len(np.diff(peaks))
+        avg_center = int(avg_samples/2)
         print('Average Samples between peaks : %d' %avg_samples)
 
         pdb.set_trace()
@@ -177,13 +178,13 @@ def plotSegments(V, peaks , fig, ax):
 
 
 
+# V=loadSamples()
 
-V=loadSamples()
+# V = preprocessData(V)
+# E , A = processSamples(V)
+# peaks = getPeaks(V,E,A)
 
-V = preprocessData(V,divider=DIVIDER)
-E , A = processSamples(V)
-peaks = getPeaks(V,E,A)
-
-initplots()
-plotSegments(V,peaks,fig,ax)
-plt.show()
+# initplots()
+# plt.plot(V)
+# #plotSegments(V,peaks,fig,ax)
+# plt.show()

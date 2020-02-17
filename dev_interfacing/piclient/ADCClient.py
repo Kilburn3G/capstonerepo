@@ -14,7 +14,7 @@ PORT = 3
 #ADC Parameters
 GAIN = 1
 DATA_RATE = 250 #samples per second
-MAX_SAMPLETIME = 15 # Max sample time in seconds
+MAX_SAMPLETIME = 30 # Max sample time in seconds
 STOP_SIG = "0"
 
 
@@ -27,9 +27,15 @@ def startClient():
 
     print("Client started. Attempting to connect to server.")
 
-    sock=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
-    sock.connect((SERVER_ADDR, PORT))
-    print("Connection established on port %s" %PORT)
+    try:
+        sock=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
+        sock.connect((SERVER_ADDR, PORT))
+        print("Connection established on port %s" %PORT)
+        return False
+    except:
+        print("Connection Failed, no server. Attempting to reconnect in 5 seconds...")
+        time.sleep(5)
+        return True
 
 
 def startSampling():
@@ -38,15 +44,19 @@ def startSampling():
     adc.start_adc(0, gain=GAIN,data_rate=DATA_RATE)
     last = 0
     sendDelta = 0.1 # Only send when difference of x Volts
-    time.sleep(5)
+    
+    #Don't send first 3 seconds of samples
+    while (time.time() - start < 3):
+        value = adc.get_last_result()
+       
+
     while (time.time() - start) <= MAX_SAMPLETIME:
         
         value = adc.get_last_result()
         value = value*0.000125
         #print(value)
-        diff = abs(value - last)
-        # if diff >= sendDelta:
-        #     #print('Delta %d' %diff)
+
+        
     
         last = value
         tosend = '{0:.5f}'.format(value) 
@@ -83,7 +93,9 @@ def main():
     print('Sampling at %s samples per second.' %DATA_RATE)
     time.sleep(1)
 
-    startClient()
+    while startClient():
+        pass
+   
     startSampling()
     #writeToCSV()
     time.sleep(5)
