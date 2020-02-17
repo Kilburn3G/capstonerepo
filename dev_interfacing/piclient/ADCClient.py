@@ -27,9 +27,15 @@ def startClient():
 
     print("Client started. Attempting to connect to server.")
 
-    sock=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
-    sock.connect((SERVER_ADDR, PORT))
-    print("Connection established on port %s" %PORT)
+    try:
+        sock=bluetooth.BluetoothSocket( bluetooth.RFCOMM )
+        sock.connect((SERVER_ADDR, PORT))
+        print("Connection established on port %s" %PORT)
+        return False
+    except:
+        print("Connection Failed, no server. Attempting to reconnect in 5 seconds...")
+        time.sleep(5)
+        return True
 
 
 def startSampling():
@@ -87,7 +93,9 @@ def main():
     print('Sampling at %s samples per second.' %DATA_RATE)
     time.sleep(1)
 
-    startClient()
+    while startClient():
+        pass
+   
     startSampling()
     #writeToCSV()
     time.sleep(5)
