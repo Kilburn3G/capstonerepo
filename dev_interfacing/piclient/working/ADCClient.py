@@ -14,7 +14,7 @@ PORT = 3
 #ADC Parameters
 GAIN = 1
 DATA_RATE = 250 #samples per second
-MAX_SAMPLETIME = 30 # Max sample time in seconds
+MAX_SAMPLETIME = 15 # Max sample time in seconds
 STOP_SIG = "0"
 
 
@@ -38,7 +38,7 @@ def startSampling():
     adc.start_adc(0, gain=GAIN,data_rate=DATA_RATE)
     last = 0
     sendDelta = 0.1 # Only send when difference of x Volts
-
+    time.sleep(5)
     while (time.time() - start) <= MAX_SAMPLETIME:
         
         value = adc.get_last_result()
