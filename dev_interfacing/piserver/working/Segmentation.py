@@ -13,7 +13,7 @@ from scipy.signal import butter, lfilter
 #from Multithreading import divideAndProcess
 import multiprocessing
 
-IN_FILE = r'test_samples/samples_jordan1.csv'
+IN_FILE = r'test_samples/samples_josh1.csv'
 #!# Not implemented unless script is run as a stand alone script.
 
 #Constants (need import)
@@ -161,16 +161,14 @@ def plotSegments(V, peaks , fig, ax):
         avg_center = int(avg_samples/2)
         print('Average Samples between peaks : %d' %avg_samples)
 
+        pdb.set_trace()
         for i in range(0,len(peaks)): 
-            if peaks[i] - avg_center > 0 and peaks[i]+avg_center < len(V):
-                
-                ax.plot(V[peaks[i]-avg_center:peaks[i]+avg_center])
-
-            elif peaks[i] - avg_center < 0:
-                
-                ax.plot(V[peaks[i]-avg_center:peaks[i]+avg_center])
+            if peaks[i] - int(avg_samples/2) > 0 and peaks[i]+int(avg_samples/2) < len(V):
+                ax.plot(V[peaks[i]-int(avg_samples/2):peaks[i]+int(avg_samples/2)])
+            elif peaks[i] - int(avg_samples/2) < 0:
+                ax.plot(V[peaks[i]-int(avg_samples/2):peaks[i]+int(avg_samples/2)])
             elif peaks[i]+avg_samples > len(V):
-                
+                pdb.set_trace()
                 ax.plot(V[peaks[i]-int(avg_samples/2):len(V)])
         plt.show()
         
