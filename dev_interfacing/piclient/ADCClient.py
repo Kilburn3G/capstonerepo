@@ -23,8 +23,11 @@ list_samples = []
 adc = Adafruit_ADS1x15.ADS1115()
 
 def startClient():
-    global sock
+    SLEEP_FAILED = 5;
 
+    ''' Start the client, and try to connect to the server listening on the specified port'''
+
+    global sock
     print("Client started. Attempting to connect to server.")
 
     try:
@@ -32,40 +35,35 @@ def startClient():
         sock.connect((SERVER_ADDR, PORT))
         print("Connection established on port %s" %PORT)
         return False
+
     except:
-        print("Connection Failed, no server. Attempting to reconnect in 5 seconds...")
-        time.sleep(5)
+        print("Connection Failed, no server. Attempting to reconnect in %d seconds..." %SLEEP_FAILED)
+        time.sleep(SLEEP_FAILED)
         return True
 
 
 def startSampling():
+    DIVIDER = 0.000125
+
     print('Sampling for %s seconds.' %MAX_SAMPLETIME)
     start = time.time()
     adc.start_adc(0, gain=GAIN,data_rate=DATA_RATE)
-    last = 0
-    sendDelta = 0.1 # Only send when difference of x Volts
-    
+
+
     #Don't send first 3 seconds of samples
     while (time.time() - start < 3):
         value = adc.get_last_result()
        
-
     while (time.time() - start) <= MAX_SAMPLETIME:
         
         value = adc.get_last_result()
-        value = value*0.000125
-        #print(value)
-
-        
+        value = value*DIVIDER        
     
-        last = value
         tosend = '{0:.5f}'.format(value) 
         print("Sending message %s" %tosend)
         sock.send( "%s" %tosend )
         list_samples.append(tosend)
     
-        
-
     adc.stop_adc()
     sock.send(STOP_SIG)
 
