@@ -118,7 +118,7 @@ def main():
 
     #Get V, E, and A
     V = np.array(samples,dtype=float) # Required for further processing
-    E, A = processSamples(samples, WINDOW_SIZE)
+    E, A = processSamples(V, WINDOW_SIZE)
 
     peaks = getPeaks(V,E,A,E_THRESH,A_THRESH)
     fig, ax = initplots()

@@ -13,7 +13,7 @@ from scipy.signal import butter, lfilter
 #from Multithreading import divideAndProcess
 import multiprocessing
 
-IN_FILE = r'out/samples_josh2.csv'
+IN_FILE = r'out/samples_josh1_GREAT.csv'
 #!# Not implemented unless script is run as a stand alone script.
 
 #Constants (need import)
@@ -180,11 +180,15 @@ def plotSegments(V, peaks , fig, ax):
 
 
 V=loadSamples()
-pdb.set_trace()
 #V = preprocessData(V,divider=DIVIDER)
 E , A = processSamples(V)
 peaks = getPeaks(V,E,A)
-
+pdb.set_trace()
 initplots()
+
+plt.title("Segmented Signal")
+plt.xlabel("Window")
+plt.ylabel("Amplitude (mV)")
+
 plotSegments(V,peaks,fig,ax)
 plt.show()
