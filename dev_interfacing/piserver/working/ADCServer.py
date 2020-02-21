@@ -1,14 +1,14 @@
-from Segmentation import processSamples, getPeaks, WINDOW_SIZE, DIVIDER, A_THRESH, E_THRESH
-from Plotting import animate, initplots, updateList, plotSegments
+from Segmentation import processSamples, getPeaks, loadSamples, plotSegments, WINDOW_SIZE, DIVIDER, A_THRESH, E_THRESH
+#from Plotting import animate, initplots, updateList
 from scipy.signal import butter, lfilter
 
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-import pandas as pd
+
 import numpy as np
 
-import bluetooth
+#import bluetooth
 import time
 
 import re
@@ -111,18 +111,40 @@ def gatherSamples(numSamples):
 
 def main():
     
-    startServer()
+    #startServer()
+    #fig, ax = initplots()
+   
+    #while(True):
+    # samples = gatherSamples(1000)
+    # writeCSV(samples)
+
+    # #Get V, E, and A
+    # V = np.array(samples,dtype=float) # Required for further processing
+
+    V = loadSamples('out/samples_josh1_GREAT.csv')
+    E, A = processSamples(V, WINDOW_SIZE)
+
+    peaks = getPeaks(V,E,A,A_THRESH,E_THRESH)
+
+    plotSegments(V,peaks)
+    plt.show(block=False)
+    plt.pause(0.1)
+    plt.clf()     
+    time.sleep(2)
     
-    samples = gatherSamples(1000)
-    writeCSV(samples)
+    V = loadSamples('out/samples_josh1_GREAT2.csv')
+    E, A = processSamples(V, WINDOW_SIZE)
 
-    #Get V, E, and A
-    V = np.array(samples,dtype=float) # Required for further processing
-    E, A = processSamples(samples, WINDOW_SIZE)
+    peaks = getPeaks(V,E,A,A_THRESH,E_THRESH)
+    
 
-    peaks = getPeaks(V,E,A,E_THRESH,A_THRESH)
-    fig, ax = initplots()
-    plotSegments(V,peaks,fig,ax)
+    plotSegments(V,peaks)
+
+    plt.show(block=False)
+    plt.pause(0.1)
+    plt.close()      
+
+    time.sleep(5)
     closeServerSockets()
 
 

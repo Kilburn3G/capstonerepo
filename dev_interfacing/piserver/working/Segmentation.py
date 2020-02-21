@@ -13,7 +13,7 @@ from scipy.signal import butter, lfilter
 #from Multithreading import divideAndProcess
 import multiprocessing
 
-IN_FILE = r'test_samples/samples_josh1.csv'
+IN_FILE = r'out/samples_josh1_GREAT.csv'
 #!# Not implemented unless script is run as a stand alone script.
 
 #Constants (need import)
@@ -23,7 +23,7 @@ DIVIDER = 0.000125
 SAMPLING_FREQ = 475
 
 #Used to decide if E is low enough
-E_THRESH = 0.0007;
+E_THRESH = 0.001;
 
 #Used to decide if A is high enough
 A_THRESH = -0.00005
@@ -34,7 +34,7 @@ def loadSamples():
     Using file io, open IN_FILE and return as a numpy array
     """
     data = np.genfromtxt(IN_FILE, dtype=float, delimiter=',') 
-    pdb.set_trace()
+    
     print('%d samples loaded' %len(data))
     return data
 
@@ -81,7 +81,7 @@ def getPeaks(V,E,A, a_thr = A_THRESH, e_thr = E_THRESH):
         C1 = E[center-1]
         C2 = E[center-2]
         
-        if C2 > C1 and C1 < C and A[center] < a_thr and C < e_thr:
+        if C2 > C1 and C1 < C and A[center] < a_thr and C > e_thr:
 
             peaks += [center]
 
@@ -155,20 +155,21 @@ def plotSegments(V, peaks , fig, ax):
 
     peaks : list of locations for peaks
     """
+
     
     if len(peaks) > 0:
         avg_samples = np.sum(np.diff(peaks))/len(np.diff(peaks))
         avg_center = int(avg_samples/2)
         print('Average Samples between peaks : %d' %avg_samples)
 
-        pdb.set_trace()
+        
         for i in range(0,len(peaks)): 
             if peaks[i] - int(avg_samples/2) > 0 and peaks[i]+int(avg_samples/2) < len(V):
                 ax.plot(V[peaks[i]-int(avg_samples/2):peaks[i]+int(avg_samples/2)])
             elif peaks[i] - int(avg_samples/2) < 0:
                 ax.plot(V[peaks[i]-int(avg_samples/2):peaks[i]+int(avg_samples/2)])
             elif peaks[i]+avg_samples > len(V):
-                pdb.set_trace()
+                
                 ax.plot(V[peaks[i]-int(avg_samples/2):len(V)])
         plt.show()
         
@@ -178,13 +179,16 @@ def plotSegments(V, peaks , fig, ax):
 
 
 
-# V=loadSamples()
+V=loadSamples()
+#V = preprocessData(V,divider=DIVIDER)
+E , A = processSamples(V)
+peaks = getPeaks(V,E,A)
+pdb.set_trace()
+initplots()
 
-# V = preprocessData(V)
-# E , A = processSamples(V)
-# peaks = getPeaks(V,E,A)
+plt.title("Segmented Signal")
+plt.xlabel("Window")
+plt.ylabel("Amplitude (mV)")
 
-# initplots()
-# plt.plot(V)
-# #plotSegments(V,peaks,fig,ax)
-# plt.show()
+plotSegments(V,peaks,fig,ax)
+plt.show()
